@@ -15,8 +15,11 @@ NULL
 # returns the number of cores to use in all NMF computation when no number is
 # specified by the user
 getMaxCores <- function(limit=TRUE){
+    message("LIMIT? ", limit)
 	#ceiling(parallel::detectCores()/2)
 	nt <- n <- getAllCores()
+    message("getAllCores returned: ", n)
+
 	# limit to number of cores specified in options if asked for
 	if( limit ){
 		if( !is.null(nc <- getOption('cores')) ) n <- nc # global option
@@ -708,7 +711,9 @@ setupBackend <- function(spec, backend, optional=FALSE, verbose=FALSE){
 	##
 	
 	# test if requested number of cores is actually available
+    message("GETTING MAX CORES")
 	NCORES <- getMaxCores(limit=FALSE)
+    message("MAX CORES: ", NCORES)
 	if( verbose > 2 ) message("# Check available cores ... [", NCORES, ']')
 	if( verbose > 2 ) message("# Check requested cores ... ", appendLF=FALSE)
 	ncores <- if( doSEQ ) 1L
@@ -718,15 +723,18 @@ setupBackend <- function(spec, backend, optional=FALSE, verbose=FALSE){
 						if( length(spec) == 0L )
 							stop("no number of cores specified for backend '", str_backend, "'")
 						spec <- spec[1]
+                        message("using 'spec' as requested cores count: ", spec)
 						if( spec <= 0L )
 							stop("invalid negative number of cores [", spec, "] specified for backend '", str_backend, "'")
 						spec
 					}else # by default use the 'cores' option or half the number of cores
+                        message("using maxCores as the requested cores count")
 						getMaxCores() #getOption('cores', ceiling(NCORES/2))
 				}, error = errorFun(stop=TRUE))
 			if( isFALSE(ncores) ) return(FALSE)
 			ncores
 		}
+    message("calculated ncores: ", ncores)
 	if( verbose > 2 ) message('[', ncores, ']')
 	
 	# create backend object
